@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ succes: false, message: "wrong password" });
     }
     //if valid user and password create token
-    const token = createToken();
+    const token = createToken(user._id);
     res
       .status(200)
       .json({ sucess: true, message: "You are now logged in", token: token });
