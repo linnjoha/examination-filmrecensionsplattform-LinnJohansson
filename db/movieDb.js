@@ -29,7 +29,6 @@ const deleteOneMovie = async (movie) => {
 };
 
 const sumMovieRatings = async () => {
-  console.log("i movie ratings");
   return await Movie.aggregate([
     {
       $lookup: {
@@ -40,7 +39,10 @@ const sumMovieRatings = async () => {
       },
     },
     {
-      $unwind: "$reviews",
+      $unwind: {
+        path: "$reviews",
+        preserveNullAndEmptyArrays: true,
+      },
     },
     {
       $group: {
@@ -52,13 +54,10 @@ const sumMovieRatings = async () => {
         averageRating: { $avg: "$reviews.rating" },
       },
     },
-  ]).exec((err, result) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log(result);
-    }
-  });
+    {
+      $sort: { averageRating: -1 },
+    },
+  ]);
 };
 module.exports = {
   addNewMovie,
