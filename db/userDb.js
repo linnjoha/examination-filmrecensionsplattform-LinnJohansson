@@ -32,7 +32,7 @@ const findUser = async (user) => {
 //check to see if user is valid as a loggedin admin
 const isUserAuth = async (token) => {
   const validToken = isTokenValid(token);
-  if (!validToken) {
+  if (!validToken.id) {
     return false;
   }
   const user = await findUser(validToken.id);

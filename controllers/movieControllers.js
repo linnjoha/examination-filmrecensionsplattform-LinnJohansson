@@ -4,7 +4,9 @@ const {
   searchAllMovies,
   updateOneMovie,
   deleteOneMovie,
+  sumMovieRatings,
 } = require("../db/movieDb");
+const { getOneMovieReviews } = require("../db/reviewDb");
 const { findUser, isUserAuth } = require("../db/userDb");
 const { isTokenValid } = require("../utils/jwt");
 
@@ -27,7 +29,7 @@ const addMovie = async (req, res) => {
     res.status(500).json({ sucess: false, error });
   }
 };
-
+//get all movies
 const getMovies = async (req, res) => {
   try {
     const movies = await searchAllMovies();
@@ -37,11 +39,16 @@ const getMovies = async (req, res) => {
     res.status(500).json({ sucess: false, error });
   }
 };
+
+//get one movie
 const getMovie = async (req, res) => {
   const id = req.params.id;
   try {
     const movie = await searchOneMovie(id);
     console.log(movie);
+    if (!movie) {
+      return res.status(404).json({ sucess: false, message: "No movie found" });
+    }
     res.status(200).json({ sucess: true, movie });
   } catch (error) {
     console.log(error.message);
@@ -92,6 +99,24 @@ const updateMovie = async (req, res) => {
   }
 };
 
+//get all the reviews on one movie
+const getMovieReviews = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const moviewReviews = await getOneMovieReviews(id);
+    if (!moviewReviews.length) {
+      return res.status(400).json({
+        sucess: false,
+        message: "no reviews could be found on chosen movie",
+      });
+    }
+    res.status(200).json({ success: true, moviewReviews });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ success: false, error });
+  }
+};
+
 const deleteMovie = async (req, res) => {
   const id = req.params.id;
   const token = req.headers.authorization;
@@ -110,7 +135,7 @@ const deleteMovie = async (req, res) => {
         message: "unauthorized user",
       });
     }
-    deleteOneMovie(id);
+    await deleteOneMovie(id);
     res
       .status(200)
       .json({ success: true, message: `${movie.title} successfully removed` });
@@ -120,4 +145,30 @@ const deleteMovie = async (req, res) => {
   }
 };
 
-module.exports = { addMovie, getMovies, getMovie, updateMovie, deleteMovie };
+const getRatings = async (req, res) => {
+  console.log("här är controller");
+  try {
+    console.log("här är controller");
+    const result = await sumMovieRatings();
+    console.log("result", result);
+    if (!result) {
+      return res.status(404).json({
+        sucess: false,
+        message: "something went wrong",
+      });
+    }
+    res.status(200).json({ success: true, result });
+  } catch (error) {
+    console.error("Error fetching movies with ratings:", error);
+    res.status(500).json({ success: false, error });
+  }
+};
+module.exports = {
+  addMovie,
+  getMovies,
+  getMovie,
+  updateMovie,
+  getMovieReviews,
+  deleteMovie,
+  getRatings,
+};

@@ -15,9 +15,18 @@ const reviewSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0,
-    max: 5,
+    max: 10,
+    message: "0-10 are allowed values on rating",
   },
   comment: {
     type: String,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
+
+const Review = mongoose.model("Review", reviewSchema);
+
+module.exports = { Review };

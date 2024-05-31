@@ -8,7 +8,6 @@ const createToken = (userid) => {
 //check if the token is valid
 const isTokenValid = (token) => {
   const upDatedToken = token.replace("Bearer ", "");
-  console.log("updated", upDatedToken);
   return jwt.verify(upDatedToken, process.env.JWT_SECRET);
 };
 
