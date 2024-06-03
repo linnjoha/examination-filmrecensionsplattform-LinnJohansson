@@ -16,7 +16,7 @@ const addUser = async (req, res) => {
         .status(400)
         .json({ succes: false, message: "username already taken" });
     }
-    //if no existing user by given username hash password
+    //if no existing user by given username =>hash password
     const hashedPassword = await hashPassword(password);
 
     const newUser = await addNewUser(username, hashedPassword, email, role);
@@ -38,11 +38,12 @@ const loginUser = async (req, res) => {
         .status(400)
         .json({ succes: false, message: "no user by given username" });
     }
+
     const validPassword = await comparePassword(password, user.password);
     if (!validPassword) {
       return res.status(400).json({ succes: false, message: "wrong password" });
     }
-    //if valid user and password create token
+    //if valid user and password correct, create token
     const token = createToken(user._id);
     res
       .status(200)

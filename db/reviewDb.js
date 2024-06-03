@@ -19,7 +19,6 @@ const updateOneReview = async (updates, allowedUpdates, review, reqbody) => {
   const isValidKeys = updates.every((update) =>
     allowedUpdates.includes(update)
   );
-  console.log("isvalidkeys", isValidKeys);
   if (!isValidKeys) {
     return false;
   }

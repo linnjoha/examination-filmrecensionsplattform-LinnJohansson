@@ -12,8 +12,9 @@ const addReview = async (req, res) => {
   const token = req.headers.authorization;
 
   try {
+    //check token on user
     const isAValidToken = isTokenValid(token);
-    console.log(isAValidToken);
+
     if (!isAValidToken.id) {
       return res.status(404).json({ success: false, message: "Unvalid token" });
     }
@@ -31,6 +32,7 @@ const addReview = async (req, res) => {
     res.status(500).json({ success: false, error });
   }
 };
+
 const getReviews = async (req, res) => {
   try {
     const reviews = await getAllReviews();
@@ -62,11 +64,13 @@ const updateReview = async (req, res) => {
   const id = req.params.id;
   const token = req.headers.authorization;
   try {
+    //check token on user
     const isAValidToken = isTokenValid(token);
     const review = await getOneReview(id);
     if (!isAValidToken.id) {
       return res.status(404).json({ success: false, message: "Unvalid token" });
     }
+    //make sure that its the chosen user that wrote the review
     if (isAValidToken.id != review.userId) {
       return res.status(404).json({
         success: false,
@@ -100,17 +104,23 @@ const deleteReview = async (req, res) => {
   const id = req.params.id;
   const token = req.headers.authorization;
   try {
+    //check to see that token is valid
     const isAValidToken = isTokenValid(token);
     const review = await getOneReview(id);
-
     if (!isAValidToken.id) {
       return res.status(404).json({ success: false, message: "Unvalid token" });
     }
+    //make sure that its the chosen user that wrote the review
     if (isAValidToken.id != review.userId) {
       return res.status(404).json({
         success: false,
         message: "You can't remove a review written by someone else",
       });
+    }
+    if (!review) {
+      return res
+        .status(400)
+        .json({ sucess: false, message: "No review could be found" });
     }
     await deleteOneReview(review);
     res

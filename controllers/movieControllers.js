@@ -7,14 +7,15 @@ const {
   sumMovieRatings,
 } = require("../db/movieDb");
 const { getOneMovieReviews } = require("../db/reviewDb");
-const { findUser, isUserAuth } = require("../db/userDb");
-const { isTokenValid } = require("../utils/jwt");
+const { isUserAuth } = require("../utils/isUserAuth");
 
+//add movie with token
 const addMovie = async (req, res) => {
   const token = req.headers.authorization;
   const { title, director, releaseYear, genre } = req.body;
   const movie = { title, director, releaseYear, genre };
   try {
+    //check if token is valid and if user.role = Admin
     const authUser = await isUserAuth(token);
     if (!authUser) {
       res.status(404).json({
@@ -22,6 +23,7 @@ const addMovie = async (req, res) => {
         message: "Not authorized by token or user role",
       });
     }
+
     const newMovie = await addNewMovie(movie);
     res.status(201).json({ sucess: true, newMovie });
   } catch (error) {
@@ -29,6 +31,7 @@ const addMovie = async (req, res) => {
     res.status(500).json({ sucess: false, error });
   }
 };
+
 //get all movies
 const getMovies = async (req, res) => {
   try {
@@ -40,12 +43,12 @@ const getMovies = async (req, res) => {
   }
 };
 
-//get one movie
+//get one movie with req params
 const getMovie = async (req, res) => {
   const id = req.params.id;
   try {
     const movie = await searchOneMovie(id);
-    console.log(movie);
+
     if (!movie) {
       return res.status(404).json({ sucess: false, message: "No movie found" });
     }
@@ -61,6 +64,7 @@ const updateMovie = async (req, res) => {
   const token = req.headers.authorization;
   try {
     const movie = await searchOneMovie(id);
+    //check if token is valid and if user.role = Admin
     const authUser = await isUserAuth(token);
     if (!authUser) {
       res.status(404).json({
@@ -122,6 +126,7 @@ const deleteMovie = async (req, res) => {
   const token = req.headers.authorization;
   try {
     const movie = await searchOneMovie(id);
+    //check if token is valid and if user.role = Admin
     const authUser = await isUserAuth(token);
     if (!movie) {
       return res.status(404).json({
@@ -146,11 +151,8 @@ const deleteMovie = async (req, res) => {
 };
 
 const getRatings = async (req, res) => {
-  console.log("här är controller");
   try {
-    console.log("här är controller");
     const result = await sumMovieRatings();
-    console.log("result", result);
     if (!result) {
       return res.status(404).json({
         sucess: false,
@@ -159,7 +161,7 @@ const getRatings = async (req, res) => {
     }
     res.status(200).json({ success: true, result });
   } catch (error) {
-    console.error("Error fetching movies with ratings:", error);
+    console.error(error.message);
     res.status(500).json({ success: false, error });
   }
 };
